@@ -23,7 +23,6 @@
     color:#b02b58;
   }
 
-  /* ======== 进入页 ======== */
   #intro {
     position:fixed;inset:0;
     background:linear-gradient(180deg,#fff0fa,#ffd6eb,#ffe6f2);
@@ -59,7 +58,6 @@
     50%{transform:translateY(-10px);}
   }
 
-  /* 背景星光 */
   .bg-stars{
     position:fixed;inset:0;
     z-index:-2;
@@ -77,22 +75,6 @@
     50%{opacity:1;}
   }
 
-  /* 气球 */
-  .balloon{
-    position:absolute;
-    bottom:-150px;
-    width:50px;height:70px;
-    border-radius:50% 50% 45% 45%;
-    background:var(--accent);
-    animation:floatUp 15s linear infinite;
-    opacity:.9;
-  }
-  @keyframes floatUp{
-    0%{transform:translateY(0) rotate(0deg);}
-    100%{transform:translateY(-110vh) rotate(10deg);}
-  }
-
-  /* 控制区 */
   .controls{
     position:fixed;top:12px;left:12px;
     display:flex;align-items:center;gap:10px;
@@ -108,7 +90,6 @@
   .btn:hover{transform:scale(1.07);}
   input[type=range]{accent-color:#ff8ac3;width:140px;}
 
-  /* 弹窗 */
   .window{
     position:fixed;border-radius:var(--radius);
     background:rgba(255,255,255,0.85);
@@ -166,13 +147,13 @@
   </div>
   <div class="hint">🎈点击任意弹窗可移除它～</div>
 
-  <!-- 🎵 背景音乐 -->
+  <!-- 🎵 本地背景音乐 -->
   <audio id="bgm" loop preload="auto">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_d4b962aa1d.mp3?filename=birthday-109763.mp3" type="audio/mpeg">
+    <source src="./happy-birthday-357371.mp3" type="audio/mpeg">
   </audio>
 
 <script>
-/* ========== 转场控制 ========== */
+/* 转场进入 */
 const intro=document.getElementById('intro');
 const enterBtn=document.getElementById('enterBtn');
 const music=document.getElementById('bgm');
@@ -188,14 +169,12 @@ enterBtn.addEventListener('click',()=>{
 
 /* 自动播放音乐 */
 function tryPlay(){
-  music.volume=0.4;
+  music.volume=0.5;
   const playPromise=music.play();
   if(playPromise){ playPromise.catch(()=>{}); }
 }
 window.addEventListener('load',()=>setTimeout(tryPlay,1000));
 document.addEventListener('click',()=>{tryPlay();},{once:true});
-
-/* ========== 主内容逻辑 ========== */
 
 /* 星星 */
 for(let i=0;i<40;i++){
@@ -208,22 +187,10 @@ for(let i=0;i<40;i++){
   document.getElementById('stars').appendChild(s);
 }
 
-/* 气球 */
-const colors=['#ff9ecd','#ffd6eb','#ffb7d9','#ffcfe5','#ff8ac3'];
-for(let i=0;i<6;i++){
-  const b=document.createElement('div');
-  b.className='balloon';
-  b.style.left=Math.random()*90+'%';
-  b.style.background=colors[i%colors.length];
-  b.style.animationDelay=(Math.random()*6)+'s';
-  document.body.appendChild(b);
-}
-
 /* 弹窗 */
 const messages=[
   "🎂 月月公主生日快乐～今天全世界都为你闪光 ✨",
   "愿你永远像现在这样甜甜的、软软的、被爱着 💖",
-  "月月公主～笑一个，好想一直看你笑 (⁄⁄•⁄ω⁄•⁄⁄)",
   "蛋糕是甜的，你比蛋糕更甜 🍰",
   "今天的你，是宇宙最亮的小星星 ⭐",
   "愿你心中有光，眼里有笑，岁岁平安喜乐 🎀",
@@ -233,12 +200,15 @@ const messages=[
   "生日快乐呀月月公主～永远是被爱的小孩💞"
 ];
 let running=true;
-let spawnRate=300;
+let spawnRate=400;
 const popups=[];
+const popupLimit=120;
+
 function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
 
 function createPopup(){
+  if(popups.length>=popupLimit) return;
   const win=document.createElement('div');
   win.className='window';
   const w=rand(220,420);
@@ -256,7 +226,6 @@ function createPopup(){
   win.addEventListener('click',()=>removePopup(win));
   document.body.appendChild(win);
   popups.push(win);
-  if(popups.length>200) removePopup(popups.shift());
 }
 function removePopup(el){
   if(!el||el._rem) return;
@@ -264,7 +233,11 @@ function removePopup(el){
   el.style.transition='transform .4s, opacity .4s';
   el.style.transform='translateY(30px) scale(.6)';
   el.style.opacity='0';
-  setTimeout(()=>el.remove(),400);
+  setTimeout(()=>{
+    el.remove();
+    const i=popups.indexOf(el);
+    if(i>-1) popups.splice(i,1);
+  },400);
 }
 
 let timer;
@@ -277,7 +250,7 @@ function restartTimer(){
   timer=setInterval(()=>{if(running)createPopup();},spawnRate);
 }
 
-/* 控制按钮 */
+/* 控制 */
 const toggleBtn=document.getElementById('toggleBtn');
 const clearBtn=document.getElementById('clearBtn');
 const rate=document.getElementById('rate');
